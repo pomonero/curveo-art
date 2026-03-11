@@ -51,6 +51,43 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
 .cs{width:32px;height:32px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:all .25s;position:relative}
 .cs:hover{transform:scale(1.15)}
 .cs.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,115,85,.18)}
+.cs.out-of-stock{opacity:.5;cursor:not-allowed}
+.cs.out-of-stock:hover{transform:none}
+.cs.out-of-stock::after{content:'';position:absolute;top:50%;left:-2px;right:-2px;height:2.5px;background:#c0392b;transform:rotate(-45deg);border-radius:2px}
+.cs .cs-tip{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--stone);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.cs:hover .cs-tip{opacity:1}
+.stock-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;color:var(--stone);font-weight:500;margin-top:1px}
+.stock-badge .dot{width:5px;height:5px;border-radius:50%;background:#27ae60}
+.stock-badge.low .dot{background:#e67e22}
+.stock-badge.out .dot{background:#c0392b}
+.stock-badge.out{color:#c0392b}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,26,.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--cream);border-radius:20px;padding:28px;max-width:440px;width:92%;box-shadow:0 40px 80px rgba(0,0,0,.15);transform:translateY(20px);transition:transform .3s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal .sb-l{margin-bottom:8px}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;margin-bottom:16px}
+.modal .m-summary{background:var(--warm-white);border-radius:12px;padding:14px;margin-bottom:16px}
+.modal .m-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sand);font-size:12px;color:var(--soft-gray)}
+.modal .m-row:last-child{border:none}
+.modal .m-total{display:flex;justify-content:space-between;padding:10px 0 0;border-top:1px solid var(--sand);font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-top:4px}
+.modal .m-form{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.modal .m-input{padding:12px 16px;border:1.5px solid var(--sand);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--warm-white);color:var(--charcoal);outline:none;transition:border-color .2s}
+.modal .m-input:focus{border-color:var(--accent)}
+.modal .m-input::placeholder{color:var(--stone)}
+.modal .m-btns{display:flex;gap:8px}
+.modal .m-btn{flex:1;padding:13px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.modal .m-btn.secondary{background:transparent;border:1px solid var(--sand);color:var(--soft-gray)}
+.modal .m-btn.secondary:hover{border-color:var(--accent);color:var(--charcoal)}
+.modal .m-btn.primary{background:var(--charcoal);border:none;color:var(--cream)}
+.modal .m-btn.primary:hover{background:var(--accent)}
+.modal .m-btn.primary:disabled{opacity:.35;cursor:not-allowed}
+.modal .m-success{text-align:center;padding:20px 0}
+.modal .m-success .check{width:56px;height:56px;border-radius:50%;background:#27ae60;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px}
+.modal .m-success h4{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:6px}
+.modal .m-success p{font-size:12px;color:var(--soft-gray);line-height:1.5}
 .sb-sum{margin-top:auto;padding:16px 20px;border-top:1px solid var(--sand);background:var(--warm-white)}
 .sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;color:var(--soft-gray)}
 .sum-total{display:flex;justify-content:space-between;padding:8px 0 0;margin-top:8px;border-top:1px solid var(--sand);font-weight:600}
@@ -99,7 +136,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
     <div class="sb-sum">
       <div id="sumDetails"></div>
       <div class="sum-total"><span>Toplam</span><span class="sum-price" id="sumPrice">₺0</span></div>
-      <button class="ob" id="orderBtn" disabled onclick="alert('Siparişiniz alındı!')">Sipariş Ver</button>
+      <button class="ob" id="orderBtn" disabled onclick="openCheckout()">Sipariş Ver</button>
     </div>
   </div>
   <div class="canvas-area">
@@ -118,6 +155,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
 </div>
 <div class="ghost" id="ghost" style="display:none"><span class="g-icon" style="display:flex;align-items:center;justify-content:center;color:white"></span><span class="g-label" style="font-size:7px;font-weight:700;opacity:.7"></span></div>
 
+<!-- ÖDEME MODALI -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div id="modalContent"></div>
+  </div>
+</div>
+
 <script>
 /*  Ağaç yapılı modüler raf konfiguratörü
     Her parça bir node: {id, type, x, y, dir, branches:[]}
@@ -128,30 +172,30 @@ const RX=172,RY=192,HW=10,SL=226,CL=110;
 const DX=[1,0,-1,0],DY=[0,1,0,-1];
 
 const PT=[
-  {id:'curve_l',name:'Sol Kavis',size:'228×218mm',pr:250,
+  {id:'curve_l',name:'Sol Kavis',size:'228×218mm',pr:250,stock:12,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M4 4C4 4 4 28 36 28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>`},
-  {id:'curve_r',name:'Sağ Kavis',size:'218×228mm',pr:250,
+  {id:'curve_r',name:'Sağ Kavis',size:'218×228mm',pr:250,stock:12,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M4 28C4 28 4 4 36 4" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>`},
-  {id:'straight',name:'Düz Parça',size:'226×20mm',pr:200,
+  {id:'straight',name:'Düz Parça',size:'226×20mm',pr:200,stock:20,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
-  {id:'corner_l',name:'Köşe Sol',size:'110×136mm',pr:200,
+  {id:'corner_l',name:'Köşe Sol',size:'110×136mm',pr:200,stock:8,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M12 4L12 24L36 24" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`},
-  {id:'corner_r',name:'Köşe Sağ',size:'110×136mm',pr:200,
+  {id:'corner_r',name:'Köşe Sağ',size:'110×136mm',pr:200,stock:8,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M28 4L28 24L4 24" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`},
-  {id:'t_piece',name:'T Parça',size:'226×66mm',pr:200,
+  {id:'t_piece',name:'T Parça',size:'226×66mm',pr:200,stock:6,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="10" x2="36" y2="10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="20" y1="10" x2="20" y2="28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
-  {id:'cross',name:'Çapraz (+)',size:'226×112mm',pr:200,
+  {id:'cross',name:'Çapraz (+)',size:'226×112mm',pr:200,stock:4,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="20" y1="4" x2="20" y2="28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
-  {id:'cap',name:'Kapak',size:'36×100mm',pr:50,isCap:true,
+  {id:'cap',name:'Kapak',size:'36×100mm',pr:50,stock:30,isCap:true,
    icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><circle cx="20" cy="16" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/><line x1="12" y1="16" x2="28" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".4"/></svg>`}
 ];
 
 const COL={
-  black:{body:'#2C2C2C',lite:'#3D3D3D',dark:'#1A1A1A',edge:'#111',label:'Siyah'},
-  white:{body:'#E8E4DC',lite:'#F4F1EA',dark:'#D2CCC2',edge:'#C0BAB0',label:'Beyaz'},
-  walnut:{body:'#8B7355',lite:'#A6916F',dark:'#6B5540',edge:'#5D4E37',label:'Ceviz'},
-  oak:{body:'#C4A882',lite:'#D4BC9A',dark:'#A8916A',edge:'#8B7A60',label:'Meşe'},
-  mint:{body:'#9DD4C5',lite:'#BDE8DC',dark:'#7CBDAD',edge:'#5EA898',label:'Mint'}
+  black:{body:'#2C2C2C',lite:'#3D3D3D',dark:'#1A1A1A',edge:'#111',label:'Siyah',inStock:true},
+  white:{body:'#E8E4DC',lite:'#F4F1EA',dark:'#D2CCC2',edge:'#C0BAB0',label:'Beyaz',inStock:true},
+  walnut:{body:'#8B7355',lite:'#A6916F',dark:'#6B5540',edge:'#5D4E37',label:'Ceviz',inStock:false},
+  oak:{body:'#C4A882',lite:'#D4BC9A',dark:'#A8916A',edge:'#8B7A60',label:'Meşe',inStock:false},
+  mint:{body:'#9DD4C5',lite:'#BDE8DC',dark:'#7CBDAD',edge:'#5EA898',label:'Mint',inStock:false}
 };
 
 const PRESETS=[
@@ -394,6 +438,56 @@ function updateUI(){
   document.getElementById('barPrice').textContent='₺'+total.toLocaleString('tr-TR');
   document.getElementById('badgeP').textContent=fp.length+' parça';
   document.getElementById('badgeC').textContent=COL[color].label;
+  renderPalette();
+}
+
+// === CHECKOUT ===
+function openCheckout(){
+  const fp=flatPieces();if(!fp.length)return;
+  const counts={};fp.forEach(p=>{counts[p]=(counts[p]||0)+1});
+  const total=fp.reduce((s,p)=>{const t=PT.find(pt=>pt.id===p);return s+(t?t.pr:0)},0);
+  let rows='';Object.entries(counts).forEach(([k,v])=>{const t=PT.find(p=>p.id===k);rows+=`<div class="m-row"><span>${t?t.name:k} ×${v}</span><span>₺${(v*(t?t.pr:0)).toLocaleString('tr-TR')}</span></div>`});
+  rows+=`<div class="m-row"><span>Renk</span><span>${COL[color].label}</span></div>`;
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="sb-l" style="margin-bottom:8px">Sipariş</div>
+    <h3>Tasarımınız Hazır</h3>
+    <div class="m-summary">${rows}<div class="m-total"><span>Toplam</span><span>₺${total.toLocaleString('tr-TR')}</span></div></div>
+    <div class="m-form">
+      <input class="m-input" id="mName" placeholder="Ad Soyad" required/>
+      <input class="m-input" id="mPhone" placeholder="Telefon (05xx xxx xx xx)" required/>
+      <input class="m-input" id="mEmail" placeholder="E-posta" type="email"/>
+      <input class="m-input" id="mAddr" placeholder="Teslimat Adresi"/>
+      <textarea class="m-input" id="mNote" placeholder="Not (opsiyonel)" rows="2" style="resize:none"></textarea>
+    </div>
+    <div class="m-btns">
+      <button class="m-btn secondary" onclick="closeModal()">Geri Dön</button>
+      <button class="m-btn primary" id="mSubmit" onclick="submitOrder()">Siparişi Onayla</button>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show')}
+
+function submitOrder(){
+  const name=document.getElementById('mName').value.trim();
+  const phone=document.getElementById('mPhone').value.trim();
+  if(!name||!phone){
+    [document.getElementById('mName'),document.getElementById('mPhone')].forEach(el=>{
+      if(!el.value.trim())el.style.borderColor='#c0392b';
+      else el.style.borderColor='';
+    });
+    return;
+  }
+  document.getElementById('modalContent').innerHTML=`
+    <div class="m-success">
+      <div class="check">✓</div>
+      <h4>Siparişiniz Alındı!</h4>
+      <p><strong>${name}</strong>, teşekkür ederiz!<br>En kısa sürede <strong>${phone}</strong> numarasından sizinle iletişime geçeceğiz.</p>
+    </div>
+    <div class="m-btns" style="margin-top:16px">
+      <button class="m-btn primary" onclick="closeModal()" style="flex:1">Tamam</button>
+    </div>`;
 }
 
 function removeNode(id){
@@ -428,19 +522,31 @@ function setTab(t){tab=t;document.querySelectorAll('.tab').forEach((el,i)=>el.cl
 
 // === PALETTE ===
 const dpEl=document.getElementById('dragPieces');
-PT.forEach(pt=>{
-  const el=document.createElement('div');el.className='drag-item';el.draggable=true;
-  el.innerHTML=`<div class="di-icon" style="color:var(--accent)">${pt.icon}</div><div class="di-info"><div class="di-name">${pt.name}</div><div class="di-size">${pt.size} · ₺${pt.pr}</div></div>`;
-  el.addEventListener('dragstart',e=>{
-    dragging=pt.id;
-    const g=document.getElementById('ghost');g.style.display='flex';g.style.background='rgba(44,44,44,.9)';
-    g.querySelector('.g-icon').innerHTML=pt.icon;g.querySelector('.g-label').textContent=pt.name.split(' ')[0];
-    const img=new Image();img.src='data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-    e.dataTransfer.setDragImage(img,0,0);renderSVG();
+function renderPalette(){
+  dpEl.innerHTML='';
+  const usedCounts={};nodes.forEach(n=>{usedCounts[n.type]=(usedCounts[n.type]||0)+1});
+  PT.forEach(pt=>{
+    const used=usedCounts[pt.id]||0;
+    const remaining=pt.stock-used;
+    const isOut=remaining<=0;
+    const stockClass=isOut?'out':remaining<=3?'low':'';
+    const el=document.createElement('div');el.className='drag-item';
+    if(!isOut)el.draggable=true;
+    if(isOut)el.style.opacity='.4';
+    el.innerHTML=`<div class="di-icon" style="color:${isOut?'var(--stone)':'var(--accent)'}">${pt.icon}</div><div class="di-info"><div class="di-name">${pt.name}</div><div class="di-size">${pt.size} · ₺${pt.pr}</div><div class="stock-badge ${stockClass}"><span class="dot"></span>${isOut?'Stokta yok':remaining+' adet stokta'}</div></div>`;
+    if(!isOut){
+      el.addEventListener('dragstart',e=>{
+        dragging=pt.id;
+        const g=document.getElementById('ghost');g.style.display='flex';g.style.background='rgba(44,44,44,.9)';
+        g.querySelector('.g-icon').innerHTML=pt.icon;g.querySelector('.g-label').textContent=pt.name.split(' ')[0];
+        const img=new Image();img.src='data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+        e.dataTransfer.setDragImage(img,0,0);renderSVG();
+      });
+      el.addEventListener('dragend',()=>{dragging=null;dropPort=null;document.getElementById('ghost').style.display='none';document.getElementById('dropHint').style.display='none';renderSVG()});
+    }
+    dpEl.appendChild(el);
   });
-  el.addEventListener('dragend',()=>{dragging=null;dropPort=null;document.getElementById('ghost').style.display='none';document.getElementById('dropHint').style.display='none';renderSVG()});
-  dpEl.appendChild(el);
-});
+}
 
 // === PRESETS ===
 const prEl=document.getElementById('presetsList');
@@ -455,9 +561,15 @@ PRESETS.forEach(pr=>{
 // === COLORS ===
 const crEl=document.getElementById('colorRow');
 Object.entries(COL).forEach(([k,v])=>{
-  const el=document.createElement('div');el.className='cs'+(k==='black'?' active':'');
-  el.style.background=v.body;el.title=v.label;if(k==='white')el.style.border='2.5px solid #ddd';
-  el.onclick=()=>{color=k;document.querySelectorAll('.cs').forEach(s=>s.classList.remove('active'));el.classList.add('active');updateUI()};
+  const el=document.createElement('div');
+  el.className='cs'+(k==='black'?' active':'')+(v.inStock?'':' out-of-stock');
+  el.style.background=v.body;el.title=v.label+(v.inStock?'':' (Stokta yok)');
+  if(k==='white')el.style.borderColor='#ddd';
+  const tip=document.createElement('span');tip.className='cs-tip';tip.textContent=v.inStock?v.label:v.label+' ✕';el.appendChild(tip);
+  el.onclick=()=>{
+    if(!v.inStock)return;
+    color=k;document.querySelectorAll('.cs').forEach(s=>s.classList.remove('active'));el.classList.add('active');updateUI();
+  };
   crEl.appendChild(el);
 });
 
