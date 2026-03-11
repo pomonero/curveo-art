@@ -6,103 +6,75 @@
 <title>Curveo — Kendin Tasarla</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--cream:#FAF7F2;--warm-white:#F5F0E8;--sand:#E8DFD0;--stone:#C4B8A5;--charcoal:#2C2C2C;--dark:#1A1A1A;--accent:#8B7355;--accent-light:#A6916F;--soft-gray:#6B6560}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);overflow:hidden;-webkit-font-smoothing:antialiased;height:100vh}
-
-  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 36px;background:rgba(250,247,242,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(200,190,175,.3);box-shadow:0 2px 40px rgba(0,0,0,.04)}
-  .logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;letter-spacing:6px;text-transform:uppercase;color:var(--dark);text-decoration:none}
-  .logo span{font-weight:300;color:var(--accent)}
-  .nav-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase}
-
-  .app{display:flex;height:100vh;padding-top:56px}
-
-  /* SIDEBAR */
-  .sidebar{width:300px;min-width:300px;background:var(--warm-white);border-right:1px solid var(--sand);display:flex;flex-direction:column;overflow-y:auto}
-  .sidebar::-webkit-scrollbar{width:4px}
-  .sidebar::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px}
-  .sb-h{padding:24px 20px 16px;border-bottom:1px solid rgba(200,190,175,.3)}
-  .sb-h h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--dark);margin-bottom:4px}
-  .sb-h p{font-size:12px;color:var(--soft-gray);font-weight:300;line-height:1.5}
-  .sb-s{padding:16px 20px;border-bottom:1px solid rgba(200,190,175,.15)}
-  .sb-l{font-size:9px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-  .sb-l button{background:none;border:none;color:var(--stone);font-size:8px;cursor:pointer;font-weight:700;font-family:inherit;letter-spacing:1.5px}
-  .sb-l button:hover{color:#c0392b}
-
-  /* TABS */
-  .tabs{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--sand);border-radius:8px;overflow:hidden}
-  .tab{flex:1;padding:8px;text-align:center;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;background:var(--cream);color:var(--soft-gray);transition:all .2s;border:none;font-family:inherit}
-  .tab.active{background:var(--charcoal);color:var(--cream)}
-
-  /* PIECE DRAG ITEMS */
-  .drag-pieces{display:flex;flex-direction:column;gap:6px}
-  .drag-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--sand);border-radius:12px;background:var(--cream);cursor:grab;transition:all .2s;user-select:none}
-  .drag-item:hover{border-color:var(--accent);transform:translateX(3px);box-shadow:0 4px 16px rgba(139,115,85,.1)}
-  .drag-item:active{cursor:grabbing;transform:scale(.97)}
-  .drag-item .di-icon{width:48px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .drag-item .di-info{flex:1}
-  .drag-item .di-name{font-size:12px;font-weight:500;color:var(--charcoal)}
-  .drag-item .di-size{font-size:10px;color:var(--stone);margin-top:1px}
-
-  /* PRESETS */
-  .presets{display:flex;flex-direction:column;gap:6px}
-  .preset-btn{padding:14px;border-radius:10px;border:1px solid var(--sand);background:var(--cream);cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;position:relative}
-  .preset-btn:hover{transform:translateX(3px);border-color:var(--accent)}
-  .preset-btn.pop{border:2px solid var(--accent)}
-  .preset-btn .pop-tag{position:absolute;top:-8px;right:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:100px;font-size:7px;font-weight:700;letter-spacing:1px}
-  .preset-btn .pr-name{font-size:13px;font-weight:500}
-  .preset-btn .pr-info{font-size:10px;color:var(--stone);margin-top:2px}
-
-  /* PIECES LIST */
-  .pieces-list{display:flex;flex-direction:column;gap:1px;max-height:150px;overflow-y:auto;margin-bottom:10px}
-  .pl-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:6px;font-size:11px;transition:background .15s}
-  .pl-item:hover{background:rgba(139,115,85,.06)}
-  .pl-item .pl-idx{color:var(--stone);font-size:9px;margin-right:6px;min-width:14px}
-  .pl-item .pl-del{background:none;border:none;color:var(--stone);cursor:pointer;font-size:16px;font-family:inherit;line-height:1;padding:0 2px}
-  .pl-item .pl-del:hover{color:#c0392b}
-
-  /* COLORS */
-  .color-row{display:flex;gap:7px;flex-wrap:wrap}
-  .cs{width:32px;height:32px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:all .25s;position:relative}
-  .cs:hover{transform:scale(1.15)}
-  .cs.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,115,85,.18)}
-
-  /* SUMMARY */
-  .sb-sum{margin-top:auto;padding:16px 20px;border-top:1px solid var(--sand);background:var(--warm-white)}
-  .sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;color:var(--soft-gray)}
-  .sum-total{display:flex;justify-content:space-between;padding:8px 0 0;margin-top:8px;border-top:1px solid var(--sand);font-weight:600}
-  .sum-total .sum-price{font-family:'Cormorant Garamond',serif;font-size:24px}
-  .ob{display:block;width:100%;padding:13px;border-radius:100px;border:none;background:var(--charcoal);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:12px}
-  .ob:hover{background:var(--accent);transform:translateY(-1px);box-shadow:0 8px 24px rgba(139,115,85,.25)}
-  .ob:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-  .undo-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--sand);background:transparent;font-size:10px;color:var(--soft-gray);cursor:pointer;font-family:inherit;margin-bottom:10px;transition:all .2s}
-  .undo-btn:hover{border-color:var(--accent);color:var(--charcoal)}
-
-  /* CANVAS */
-  .canvas-area{flex:1;display:flex;flex-direction:column;min-width:0}
-  .canvas-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;background:linear-gradient(180deg,#FDFCFA,#F5F0E8);transition:background .3s;overflow:hidden}
-  .canvas-main.dragging-over{background:linear-gradient(180deg,#FDFCFA,#EDE8DD)}
-  .canvas-main .dot-bg{position:absolute;inset:0;opacity:.015;background-image:radial-gradient(circle,#8B7355 .5px,transparent .5px);background-size:22px 22px;pointer-events:none}
-  .canvas-bar{padding:10px 20px;border-top:1px solid var(--sand);background:var(--warm-white);display:flex;justify-content:space-between;align-items:center}
-  .canvas-bar .cb-info{font-size:11px;color:var(--soft-gray)}
-  .canvas-bar .cb-price{font-family:'Cormorant Garamond',serif;font-size:24px}
-
-  .empty-hint{display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.4}
-  .empty-hint p{color:var(--stone);font-size:14px}
-
-  /* DRAG TARGET HINT */
-  .drop-hint-bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(139,115,85,.9);color:white;padding:7px 20px;border-radius:100px;font-size:11px;font-weight:600;pointer-events:none;white-space:nowrap;z-index:50}
-  .badge-bar{position:absolute;bottom:14px;left:14px;background:rgba(26,26,26,.72);backdrop-filter:blur(8px);color:white;padding:5px 14px;border-radius:100px;font-size:10px;font-weight:500;display:flex;gap:10px}
-  .badge-bar .sep{opacity:.35}
-
-  /* GHOST */
-  .ghost{position:fixed;width:56px;height:56px;border-radius:14px;color:white;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.2);transition:background .15s,transform .15s;flex-direction:column;gap:2px}
-  .ghost .g-icon{font-size:22px}
-  .ghost .g-label{font-size:7px;font-weight:700;opacity:.7}
-
-  @media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;min-width:auto;max-height:40vh}.canvas-area{min-height:60vh}nav{padding:10px 16px}}
-  @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .sb-s{animation:fu .4s ease both}
+:root{--cream:#FAF7F2;--warm-white:#F5F0E8;--sand:#E8DFD0;--stone:#C4B8A5;--charcoal:#2C2C2C;--dark:#1A1A1A;--accent:#8B7355;--accent-light:#A6916F;--soft-gray:#6B6560}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);overflow:hidden;-webkit-font-smoothing:antialiased;height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 36px;background:rgba(250,247,242,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(200,190,175,.3);box-shadow:0 2px 40px rgba(0,0,0,.04)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;letter-spacing:6px;text-transform:uppercase;color:var(--dark);text-decoration:none}
+.logo span{font-weight:300;color:var(--accent)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase}
+.app{display:flex;height:100vh;padding-top:56px}
+.sidebar{width:300px;min-width:300px;background:var(--warm-white);border-right:1px solid var(--sand);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px}
+.sb-h{padding:24px 20px 16px;border-bottom:1px solid rgba(200,190,175,.3)}
+.sb-h h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--dark);margin-bottom:4px}
+.sb-h p{font-size:12px;color:var(--soft-gray);font-weight:300;line-height:1.5}
+.sb-s{padding:16px 20px;border-bottom:1px solid rgba(200,190,175,.15)}
+.sb-l{font-size:9px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.sb-l button{background:none;border:none;color:var(--stone);font-size:8px;cursor:pointer;font-weight:700;font-family:inherit;letter-spacing:1.5px}
+.sb-l button:hover{color:#c0392b}
+.tabs{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--sand);border-radius:8px;overflow:hidden}
+.tab{flex:1;padding:8px;text-align:center;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;background:var(--cream);color:var(--soft-gray);transition:all .2s;border:none;font-family:inherit}
+.tab.active{background:var(--charcoal);color:var(--cream)}
+.drag-pieces{display:flex;flex-direction:column;gap:6px}
+.drag-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--sand);border-radius:12px;background:var(--cream);cursor:grab;transition:all .2s;user-select:none}
+.drag-item:hover{border-color:var(--accent);transform:translateX(3px);box-shadow:0 4px 16px rgba(139,115,85,.1)}
+.drag-item:active{cursor:grabbing;transform:scale(.97)}
+.drag-item .di-icon{width:48px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.drag-item .di-info{flex:1}
+.drag-item .di-name{font-size:12px;font-weight:500;color:var(--charcoal)}
+.drag-item .di-size{font-size:10px;color:var(--stone);margin-top:1px}
+.presets{display:flex;flex-direction:column;gap:6px}
+.preset-btn{padding:14px;border-radius:10px;border:1px solid var(--sand);background:var(--cream);cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;position:relative}
+.preset-btn:hover{transform:translateX(3px);border-color:var(--accent)}
+.preset-btn.pop{border:2px solid var(--accent)}
+.preset-btn .pop-tag{position:absolute;top:-8px;right:10px;background:var(--accent);color:white;padding:2px 8px;border-radius:100px;font-size:7px;font-weight:700;letter-spacing:1px}
+.preset-btn .pr-name{font-size:13px;font-weight:500}
+.preset-btn .pr-info{font-size:10px;color:var(--stone);margin-top:2px}
+.pieces-list{display:flex;flex-direction:column;gap:1px;max-height:150px;overflow-y:auto;margin-bottom:10px}
+.pl-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:6px;font-size:11px;transition:background .15s}
+.pl-item:hover{background:rgba(139,115,85,.06)}
+.pl-item .pl-idx{color:var(--stone);font-size:9px;margin-right:6px;min-width:14px}
+.pl-item .pl-del{background:none;border:none;color:var(--stone);cursor:pointer;font-size:16px;font-family:inherit;line-height:1;padding:0 2px}
+.pl-item .pl-del:hover{color:#c0392b}
+.color-row{display:flex;gap:7px;flex-wrap:wrap}
+.cs{width:32px;height:32px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:all .25s;position:relative}
+.cs:hover{transform:scale(1.15)}
+.cs.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,115,85,.18)}
+.sb-sum{margin-top:auto;padding:16px 20px;border-top:1px solid var(--sand);background:var(--warm-white)}
+.sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;color:var(--soft-gray)}
+.sum-total{display:flex;justify-content:space-between;padding:8px 0 0;margin-top:8px;border-top:1px solid var(--sand);font-weight:600}
+.sum-total .sum-price{font-family:'Cormorant Garamond',serif;font-size:24px}
+.ob{display:block;width:100%;padding:13px;border-radius:100px;border:none;background:var(--charcoal);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:12px}
+.ob:hover{background:var(--accent);transform:translateY(-1px);box-shadow:0 8px 24px rgba(139,115,85,.25)}
+.ob:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.undo-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--sand);background:transparent;font-size:10px;color:var(--soft-gray);cursor:pointer;font-family:inherit;margin-bottom:10px;transition:all .2s}
+.undo-btn:hover{border-color:var(--accent);color:var(--charcoal)}
+.canvas-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.canvas-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;background:linear-gradient(180deg,#FDFCFA,#F5F0E8);overflow:hidden}
+.canvas-main .dot-bg{position:absolute;inset:0;opacity:.015;background-image:radial-gradient(circle,#8B7355 .5px,transparent .5px);background-size:22px 22px;pointer-events:none}
+.canvas-bar{padding:10px 20px;border-top:1px solid var(--sand);background:var(--warm-white);display:flex;justify-content:space-between;align-items:center}
+.canvas-bar .cb-info{font-size:11px;color:var(--soft-gray)}
+.canvas-bar .cb-price{font-family:'Cormorant Garamond',serif;font-size:24px}
+.empty-hint{display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.4}
+.empty-hint p{color:var(--stone);font-size:14px}
+.drop-hint-bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(139,115,85,.9);color:white;padding:7px 20px;border-radius:100px;font-size:11px;font-weight:600;pointer-events:none;white-space:nowrap;z-index:50}
+.badge-bar{position:absolute;bottom:14px;left:14px;background:rgba(26,26,26,.72);backdrop-filter:blur(8px);color:white;padding:5px 14px;border-radius:100px;font-size:10px;font-weight:500;display:flex;gap:10px}
+.badge-bar .sep{opacity:.35}
+.ghost{position:fixed;width:56px;height:56px;border-radius:14px;color:white;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.2);transition:background .15s,transform .15s;flex-direction:column;gap:2px}
+@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;min-width:auto;max-height:40vh}.canvas-area{min-height:60vh}nav{padding:10px 16px}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sb-s{animation:fu .4s ease both}
 </style>
 </head>
 <body>
@@ -112,73 +84,69 @@
 </nav>
 <div class="app">
   <div class="sidebar">
-    <div class="sb-h">
-      <h2>Kendin Tasarla</h2>
-      <p>Parçaları sürükleyip kanvasa bırakın. Otomatik birbirine yapışır.</p>
-    </div>
+    <div class="sb-h"><h2>Kendin Tasarla</h2><p>Parçaları sürükleyip bağlantı noktalarına bırakın.</p></div>
     <div class="sb-s">
-      <div class="tabs">
-        <button class="tab active" onclick="setTab('build')">Oluştur</button>
-        <button class="tab" onclick="setTab('presets')">Şablonlar</button>
-      </div>
-      <div id="buildPanel">
-        <div class="sb-l">Parça Sürükle</div>
-        <div class="drag-pieces" id="dragPieces"></div>
-      </div>
-      <div id="presetsPanel" style="display:none">
-        <div class="sb-l">Hazır Şablonlar</div>
-        <div class="presets" id="presetsList"></div>
-      </div>
+      <div class="tabs"><button class="tab active" onclick="setTab('build')">Oluştur</button><button class="tab" onclick="setTab('presets')">Şablonlar</button></div>
+      <div id="buildPanel"><div class="sb-l">Parça Sürükle</div><div class="drag-pieces" id="dragPieces"></div></div>
+      <div id="presetsPanel" style="display:none"><div class="sb-l">Hazır Şablonlar</div><div class="presets" id="presetsList"></div></div>
     </div>
     <div class="sb-s" id="piecesSection" style="display:none">
       <div class="sb-l"><span>Parçalar (<span id="pCount">0</span>)</span><button onclick="clearAll()">TEMİZLE</button></div>
       <div class="pieces-list" id="piecesList"></div>
       <button class="undo-btn" onclick="undo()">← Geri Al</button>
     </div>
-    <div class="sb-s">
-      <div class="sb-l">Renk</div>
-      <div class="color-row" id="colorRow"></div>
-    </div>
+    <div class="sb-s"><div class="sb-l">Renk</div><div class="color-row" id="colorRow"></div></div>
     <div class="sb-sum">
       <div id="sumDetails"></div>
       <div class="sum-total"><span>Toplam</span><span class="sum-price" id="sumPrice">₺0</span></div>
-      <button class="ob" id="orderBtn" disabled onclick="alert('Siparişiniz alındı! En kısa sürede iletişime geçeceğiz.')">Sipariş Ver</button>
+      <button class="ob" id="orderBtn" disabled onclick="alert('Siparişiniz alındı!')">Sipariş Ver</button>
     </div>
   </div>
-
   <div class="canvas-area">
     <div class="canvas-main" id="canvas">
       <div class="dot-bg"></div>
-      <svg id="shelfSvg" style="width:100%;height:100%;max-height:540px" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="svg" style="width:100%;height:100%;max-height:560px" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="empty-hint" id="emptyHint">
         <svg width="110" height="65" viewBox="0 0 110 65" fill="none"><path d="M12 5L50 5Q68 5 68 23L68 42Q68 60 50 60L12 60Q5 55 5 42L5 23Q5 8 12 5" stroke="#B0A898" stroke-width="3" fill="none" stroke-dasharray="5 4"/></svg>
         <p>Parçaları sürükleyip buraya bırakın</p>
       </div>
-      <div class="badge-bar" id="badge" style="display:none"><span id="badgePieces">0 parça</span><span class="sep">|</span><span id="badgeColor">Siyah</span></div>
+      <div class="badge-bar" id="badge" style="display:none"><span id="badgeP"></span><span class="sep">|</span><span id="badgeC"></span></div>
       <div class="drop-hint-bar" id="dropHint" style="display:none"></div>
     </div>
-    <div class="canvas-bar">
-      <div class="cb-info" id="barInfo">Parça sürükleyin</div>
-      <div class="cb-price" id="barPrice">₺0</div>
-    </div>
+    <div class="canvas-bar"><div class="cb-info" id="barInfo">Parça sürükleyin</div><div class="cb-price" id="barPrice">₺0</div></div>
   </div>
 </div>
-<div class="ghost" id="ghost" style="display:none"><span class="g-icon"></span><span class="g-label"></span></div>
+<div class="ghost" id="ghost" style="display:none"><span class="g-icon" style="display:flex;align-items:center;justify-content:center;color:white"></span><span class="g-label" style="font-size:7px;font-weight:700;opacity:.7"></span></div>
 
 <script>
-/* STL Gerçek Ölçüler (mm):
-   Straight: 225.9×20×100 | Curve CW: 218×228×100 | Curve CCW: 228×218×100
-   Kavis yarıçapı ≈ 218mm (RX) × 228mm (RY)
+/*  Ağaç yapılı modüler raf konfiguratörü
+    Her parça bir node: {id, type, x, y, dir, branches:[]}
+    T parçası 1 dal, Cross 2 dal açar.
+    Her dal kendi zincirini taşır.
 */
-const RX=172, RY=192, HW=10, SL=226; // SVG coordinate system (önceki ile aynı)
+const RX=172,RY=192,HW=10,SL=226,CL=110;
+const DX=[1,0,-1,0],DY=[0,1,0,-1];
 
-const PIECE_TYPES=[
-  {id:'curve_l',name:'Sol Kavis',icon:'↰',size:'228×218mm',price:200},
-  {id:'curve_r',name:'Sağ Kavis',icon:'↱',size:'218×228mm',price:200},
-  {id:'straight',name:'Düz Parça',icon:'━',size:'226×20mm',price:120}
+const PT=[
+  {id:'curve_l',name:'Sol Kavis',size:'228×218mm',pr:250,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M4 4C4 4 4 28 36 28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'curve_r',name:'Sağ Kavis',size:'218×228mm',pr:250,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M4 28C4 28 4 4 36 4" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'straight',name:'Düz Parça',size:'226×20mm',pr:200,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
+  {id:'corner_l',name:'Köşe Sol',size:'110×136mm',pr:200,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M12 4L12 24L36 24" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`},
+  {id:'corner_r',name:'Köşe Sağ',size:'110×136mm',pr:200,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M28 4L28 24L4 24" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`},
+  {id:'t_piece',name:'T Parça',size:'226×66mm',pr:200,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="10" x2="36" y2="10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="20" y1="10" x2="20" y2="28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
+  {id:'cross',name:'Çapraz (+)',size:'226×112mm',pr:200,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="20" y1="4" x2="20" y2="28" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>`},
+  {id:'cap',name:'Kapak',size:'36×100mm',pr:50,isCap:true,
+   icon:`<svg width="40" height="32" viewBox="0 0 40 32" fill="none"><circle cx="20" cy="16" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/><line x1="12" y1="16" x2="28" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".4"/></svg>`}
 ];
 
-const COLORS={
+const COL={
   black:{body:'#2C2C2C',lite:'#3D3D3D',dark:'#1A1A1A',edge:'#111',label:'Siyah'},
   white:{body:'#E8E4DC',lite:'#F4F1EA',dark:'#D2CCC2',edge:'#C0BAB0',label:'Beyaz'},
   walnut:{body:'#8B7355',lite:'#A6916F',dark:'#6B5540',edge:'#5D4E37',label:'Ceviz'},
@@ -193,35 +161,103 @@ const PRESETS=[
   {name:'Üçlü Set',p:['curve_l','curve_l','straight','curve_r','curve_r','straight','curve_l','curve_l','straight','curve_r','curve_r']}
 ];
 
-let pieces=[], color='black', tab='build', dragging=null, dropTarget=null, hovered=null;
-const DX=[1,0,-1,0], DY=[0,1,0,-1];
+// === STATE ===
+// pieces = flat array, ama her item: {id, type, parentPort?}
+// ports = tüm açık bağlantı noktaları [{id, x, y, dir, label}]
+let nodes=[];  // [{id,type,x,y,dir,endX,endY,endDir, branchPorts:[{id,x,y,dir}]}]
+let nodeId=0;
+let color='black',tab='build',dragging=null,dropPort=null;
 
 function getEP(dir,cw){
-  if(cw)return [{cox:0,coy:RY,eox:RX,eoy:RY},{cox:-RX,coy:0,eox:-RX,eoy:RY},{cox:0,coy:-RY,eox:-RX,eoy:-RY},{cox:RX,coy:0,eox:RX,eoy:-RY}][dir];
-  return [{cox:0,coy:-RY,eox:RX,eoy:-RY},{cox:RX,coy:0,eox:RX,eoy:RY},{cox:0,coy:RY,eox:-RX,eoy:RY},{cox:-RX,coy:0,eox:-RX,eoy:-RY}][dir];
+  if(cw)return[{cox:0,coy:RY,eox:RX,eoy:RY},{cox:-RX,coy:0,eox:-RX,eoy:RY},{cox:0,coy:-RY,eox:-RX,eoy:-RY},{cox:RX,coy:0,eox:RX,eoy:-RY}][dir];
+  return[{cox:0,coy:-RY,eox:RX,eoy:-RY},{cox:RX,coy:0,eox:RX,eoy:RY},{cox:0,coy:RY,eox:-RX,eoy:RY},{cox:-RX,coy:0,eox:-RX,eoy:-RY}][dir];
 }
 
-function build(ps){
-  let x=0,y=0,dir=0;const segs=[];
-  for(const p of ps){
-    const sx=x,sy=y;
-    if(p==='straight'){x+=DX[dir]*SL;y+=DY[dir]*SL;segs.push({t:'s',x1:sx,y1:sy,x2:x,y2:y})}
-    else{const cw=p==='curve_r',ep=getEP(dir,cw),cx=sx+ep.cox,cy=sy+ep.coy;x=sx+ep.eox;y=sy+ep.eoy;
-      segs.push({t:'e',cx,cy,sa:Math.atan2((sy-cy)/RY,(sx-cx)/RX),ea:Math.atan2((y-cy)/RY,(x-cx)/RX),cw,sx,sy,ex:x,ey:y});
-      dir=cw?(dir+1)%4:(dir+3)%4}
+function addNode(type, startX, startY, startDir){
+  const id=++nodeId;
+  let ex,ey,edir=startDir;
+  const sx=startX,sy=startY;
+  const branchPorts=[];
+
+  if(type==='straight'){
+    ex=sx+DX[startDir]*SL; ey=sy+DY[startDir]*SL;
+  } else if(type==='t_piece'){
+    ex=sx+DX[startDir]*SL; ey=sy+DY[startDir]*SL;
+    const pd=(startDir+1)%4; // dik dal yönü
+    const mx=(sx+ex)/2,my=(sy+ey)/2;
+    const bLen=SL*.45;
+    branchPorts.push({id:`${id}_b1`,x:mx+DX[pd]*bLen,y:my+DY[pd]*bLen,dir:pd,taken:false});
+  } else if(type==='cross'){
+    ex=sx+DX[startDir]*SL; ey=sy+DY[startDir]*SL;
+    const pd1=(startDir+1)%4,pd2=(startDir+3)%4;
+    const mx=(sx+ex)/2,my=(sy+ey)/2;
+    const bLen=SL*.45;
+    branchPorts.push({id:`${id}_b1`,x:mx+DX[pd1]*bLen,y:my+DY[pd1]*bLen,dir:pd1,taken:false});
+    branchPorts.push({id:`${id}_b2`,x:mx+DX[pd2]*bLen,y:my+DY[pd2]*bLen,dir:pd2,taken:false});
+  } else if(type==='corner_l'){
+    const nd=(startDir+3)%4;
+    const kx=sx+DX[startDir]*CL,ky=sy+DY[startDir]*CL;
+    ex=kx+DX[nd]*CL; ey=ky+DY[nd]*CL;
+    edir=nd;
+  } else if(type==='corner_r'){
+    const nd=(startDir+1)%4;
+    const kx=sx+DX[startDir]*CL,ky=sy+DY[startDir]*CL;
+    ex=kx+DX[nd]*CL; ey=ky+DY[nd]*CL;
+    edir=nd;
+  } else if(type==='curve_l'){
+    const cw=false,ep=getEP(startDir,cw),cx=sx+ep.cox,cy=sy+ep.coy;
+    ex=sx+ep.eox; ey=sy+ep.eoy;
+    edir=(startDir+3)%4;
+  } else if(type==='curve_r'){
+    const cw=true,ep=getEP(startDir,cw),cx=sx+ep.cox,cy=sy+ep.coy;
+    ex=sx+ep.eox; ey=sy+ep.eoy;
+    edir=(startDir+1)%4;
+  } else if(type==='cap'){
+    ex=sx; ey=sy; // kapak ilerlemiyor
   }
-  const aX=[],aY=[];
-  for(const s of segs){
-    if(s.t==='s'){const dx=s.x2-s.x1,dy=s.y2-s.y1,l=Math.hypot(dx,dy)||1,nx=(-dy/l)*(HW+5),ny=(dx/l)*(HW+5);
-      aX.push(s.x1+nx,s.x1-nx,s.x2+nx,s.x2-nx);aY.push(s.y1+ny,s.y1-ny,s.y2+ny,s.y2-ny)}
-    else{let sw=s.ea-s.sa;if(s.cw&&sw<0)sw+=Math.PI*2;if(!s.cw&&sw>0)sw-=Math.PI*2;
-      for(let i=0;i<=16;i++){const a=s.sa+sw*(i/16),co=Math.cos(a),si=Math.sin(a);
-        aX.push(s.cx+(RX+HW+5)*co,s.cx+(RX-HW-5)*co);aY.push(s.cy+(RY+HW+5)*si,s.cy+(RY-HW-5)*si)}}
-  }
-  if(!aX.length)return{segs:[],mnX:0,mxX:0,mnY:-200,mxY:200,sx:0,sy:0,ex:0,ey:0};
-  return{segs,mnX:Math.min(...aX),mxX:Math.max(...aX),mnY:Math.min(...aY),mxY:Math.max(...aY),sx:segs[0]?.x1??0,sy:segs[0]?.y1??0,ex:x,ey:y};
+
+  const node={id,type,sx,sy,dir:startDir,ex,ey,edir,branchPorts};
+  nodes.push(node);
+  return node;
 }
 
+// Tüm açık portları hesapla
+function getOpenPorts(){
+  const ports=[];
+  if(!nodes.length){
+    ports.push({id:'origin',x:0,y:0,dir:0,label:'Başla'});
+    return ports;
+  }
+  // Her node'un end noktası, eğer başka node'un start'ı değilse açık
+  const startPoints=new Set();
+  nodes.forEach(n=>{startPoints.add(`${Math.round(n.sx)},${Math.round(n.sy)}`)});
+
+  nodes.forEach(n=>{
+    if(n.type==='cap') return;
+    const key=`${Math.round(n.ex)},${Math.round(n.ey)}`;
+    if(!startPoints.has(key)){
+      ports.push({id:`${n.id}_end`,x:n.ex,y:n.ey,dir:n.edir,label:'Uç'});
+    }
+    // Branch ports
+    n.branchPorts.forEach(bp=>{
+      if(!bp.taken) ports.push({...bp,label:'Dal'});
+    });
+  });
+
+  // İlk node'un start noktası da açık olabilir (başa ekleme)
+  const first=nodes[0];
+  const firstKey=`${Math.round(first.sx)},${Math.round(first.sy)}`;
+  // Başka node bu noktayı end olarak kullanıyor mu?
+  const endPoints=new Set();
+  nodes.forEach(n=>{endPoints.add(`${Math.round(n.ex)},${Math.round(n.ey)}`)});
+  if(!endPoints.has(firstKey)){
+    ports.push({id:'start',x:first.sx,y:first.sy,dir:(first.dir+2)%4,label:'Baş'});
+  }
+
+  return ports;
+}
+
+// === SVG RENDER ===
 function eArc(cx,cy,sa,ea,cw,hw,side,N=36){
   let sw=ea-sa;if(cw&&sw<0)sw+=Math.PI*2;if(!cw&&sw>0)sw-=Math.PI*2;
   const pts=[];for(let i=0;i<=N;i++){const a=sa+sw*(i/N),co=Math.cos(a),si=Math.sin(a);
@@ -230,186 +266,223 @@ function eArc(cx,cy,sa,ea,cw,hw,side,N=36){
 }
 
 function renderSVG(){
-  const svg=document.getElementById('shelfSvg');
-  const c=COLORS[color],d=build(pieces);
-  document.getElementById('emptyHint').style.display=pieces.length?'none':'flex';
-  document.getElementById('badge').style.display=pieces.length?'flex':'none';
-  if(!pieces.length&&!dragging){svg.innerHTML='';return}
+  const svg=document.getElementById('svg');
+  const c=COL[color];
+  document.getElementById('emptyHint').style.display=nodes.length?'none':'flex';
+  document.getElementById('badge').style.display=nodes.length?'flex':'none';
+  if(!nodes.length&&!dragging){svg.innerHTML='';svg.removeAttribute('viewBox');return}
 
-  const pad=40,vx=pieces.length?(d.mnX-pad):-300,vy=pieces.length?(d.mnY-pad):-250;
-  const vw=pieces.length?(d.mxX-d.mnX+pad*2):600,vh=pieces.length?(d.mxY-d.mnY+pad*2):500;
-  svg.setAttribute('viewBox',`${vx} ${vy} ${vw} ${vh}`);
+  // Bounding box
+  const allPts=[];
+  nodes.forEach(n=>{
+    allPts.push([n.sx,n.sy],[n.ex,n.ey]);
+    if(n.type==='corner_l'||n.type==='corner_r'){
+      const kx=n.sx+DX[n.dir]*CL,ky=n.sy+DY[n.dir]*CL;
+      allPts.push([kx,ky]);
+    }
+    if(n.type==='curve_l'||n.type==='curve_r'){
+      const cw=n.type==='curve_r',ep=getEP(n.dir,cw);
+      const cx=n.sx+ep.cox,cy=n.sy+ep.coy;
+      for(let i=0;i<=8;i++){const a=Math.PI*2*i/8;allPts.push([cx+RX*Math.cos(a),cy+RY*Math.sin(a)])}
+    }
+    n.branchPorts.forEach(bp=>{allPts.push([bp.x,bp.y])});
+  });
+  const ports=getOpenPorts();
+  ports.forEach(p=>allPts.push([p.x,p.y]));
+
+  if(!allPts.length) allPts.push([0,0]);
+  let mnX=Infinity,mxX=-Infinity,mnY=Infinity,mxY=-Infinity;
+  allPts.forEach(([x,y])=>{mnX=Math.min(mnX,x);mxX=Math.max(mxX,x);mnY=Math.min(mnY,y);mxY=Math.max(mxY,y)});
+  const pad=60;
+  svg.setAttribute('viewBox',`${mnX-pad} ${mnY-pad} ${mxX-mnX+pad*2} ${mxY-mnY+pad*2}`);
 
   let html=`<defs><filter id="shd"><feDropShadow dx="2" dy="5" stdDeviation="9" floodColor="rgba(0,0,0,0.09)"/></filter>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${c.lite}"/><stop offset="45%" stop-color="${c.body}"/><stop offset="100%" stop-color="${c.dark}"/></linearGradient></defs>`;
 
-  // Shadow layer
-  html+='<g filter="url(#shd)">';
-  d.segs.forEach((s,i)=>{
-    if(s.t==='s'){const dx=s.x2-s.x1,dy=s.y2-s.y1,l=Math.hypot(dx,dy)||1,nx=(-dy/l)*HW,ny=(dx/l)*HW;
-      html+=`<polygon points="${s.x1+nx},${s.y1+ny} ${s.x2+nx},${s.y2+ny} ${s.x2-nx},${s.y2-ny} ${s.x1-nx},${s.y1-ny}" fill="${c.dark}"/>`}
-    else{const o=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW,1),n=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW,-1);
-      html+=`<polygon points="${[...o,...n.reverse()].map(p=>p.join(',')).join(' ')}" fill="${c.dark}"/>`}
+  // Draw each node
+  function norm(x1,y1,x2,y2,hw){const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy)||1;return{nx:(-dy/l)*hw,ny:(dx/l)*hw}}
+
+  // Shadow + Body combined per node
+  nodes.forEach(n=>{
+    const fill='url(#bg)',stk=c.edge,sw=1;
+    if(n.type==='straight'||n.type==='t_piece'||n.type==='cross'){
+      const{nx,ny}=norm(n.sx,n.sy,n.ex,n.ey,HW);
+      // Shadow
+      html+=`<polygon points="${n.sx+nx},${n.sy+ny} ${n.ex+nx},${n.ey+ny} ${n.ex-nx},${n.ey-ny} ${n.sx-nx},${n.sy-ny}" fill="${c.dark}" filter="url(#shd)"/>`;
+      // Body
+      html+=`<polygon points="${n.sx+nx},${n.sy+ny} ${n.ex+nx},${n.ey+ny} ${n.ex-nx},${n.ey-ny} ${n.sx-nx},${n.sy-ny}" fill="${fill}" stroke="${stk}" stroke-width="${sw}"/>`;
+      html+=`<polygon points="${n.sx+nx},${n.sy+ny} ${n.ex+nx},${n.ey+ny} ${n.ex+nx*.4},${n.ey+ny*.4} ${n.sx+nx*.4},${n.sy+ny*.4}" fill="${c.lite}" opacity=".2"/>`;
+
+      // T/Cross dalları
+      if(n.type==='t_piece'||n.type==='cross'){
+        const mx=(n.sx+n.ex)/2,my=(n.sy+n.ey)/2;
+        n.branchPorts.forEach(bp=>{
+          const{nx:bnx,ny:bny}=norm(mx,my,bp.x,bp.y,HW);
+          html+=`<polygon points="${mx+bnx},${my+bny} ${mx-bnx},${my-bny} ${bp.x-bnx},${bp.y-bny} ${bp.x+bnx},${bp.y+bny}" fill="${c.dark}" filter="url(#shd)"/>`;
+          html+=`<polygon points="${mx+bnx},${my+bny} ${mx-bnx},${my-bny} ${bp.x-bnx},${bp.y-bny} ${bp.x+bnx},${bp.y+bny}" fill="${fill}" stroke="${stk}" stroke-width="${sw}"/>`;
+          html+=`<polygon points="${mx+bnx},${my+bny} ${mx+bnx*.4},${my+bny*.4} ${bp.x+bnx*.4},${bp.y+bny*.4} ${bp.x+bnx},${bp.y+bny}" fill="${c.lite}" opacity=".15"/>`;
+          // Dal ucu kapak
+          html+=`<circle cx="${bp.x}" cy="${bp.y}" r="${HW+.5}" fill="${c.body}" stroke="${stk}" stroke-width="1"/>`;
+        });
+        // Merkez
+        html+=`<circle cx="${mx}" cy="${my}" r="${HW+1}" fill="${c.body}" stroke="${stk}" stroke-width="1"/>`;
+      }
+    } else if(n.type==='corner_l'||n.type==='corner_r'){
+      const kx=n.sx+DX[n.dir]*CL,ky=n.sy+DY[n.dir]*CL;
+      const{nx:n1x,ny:n1y}=norm(n.sx,n.sy,kx,ky,HW);
+      const{nx:n2x,ny:n2y}=norm(kx,ky,n.ex,n.ey,HW);
+      const path=`M${n.sx+n1x},${n.sy+n1y} L${kx+n1x},${ky+n1y} L${kx+n2x},${ky+n2y} L${n.ex+n2x},${n.ey+n2y} L${n.ex-n2x},${n.ey-n2y} L${kx-n2x},${ky-n2y} L${kx-n1x},${ky-n1y} L${n.sx-n1x},${n.sy-n1y} Z`;
+      html+=`<path d="${path}" fill="${c.dark}" filter="url(#shd)"/>`;
+      html+=`<path d="${path}" fill="${fill}" stroke="${stk}" stroke-width="${sw}" stroke-linejoin="miter"/>`;
+    } else if(n.type==='curve_l'||n.type==='curve_r'){
+      const cw=n.type==='curve_r',ep=getEP(n.dir,cw);
+      const cx=n.sx+ep.cox,cy=n.sy+ep.coy;
+      const sa=Math.atan2((n.sy-cy)/RY,(n.sx-cx)/RX);
+      const ea=Math.atan2((n.ey-cy)/RY,(n.ex-cx)/RX);
+      const o=eArc(cx,cy,sa,ea,cw,HW,1),nr=eArc(cx,cy,sa,ea,cw,HW,-1);
+      const pts=[...o,...nr.reverse()].map(p=>p.join(',')).join(' ');
+      html+=`<polygon points="${pts}" fill="${c.dark}" filter="url(#shd)"/>`;
+      html+=`<polygon points="${pts}" fill="${fill}" stroke="${stk}" stroke-width="${sw}"/>`;
+      const ho=eArc(cx,cy,sa,ea,cw,HW,1),hi=eArc(cx,cy,sa,ea,cw,HW*.3,1);
+      html+=`<polygon points="${[...ho,...hi.reverse()].map(p=>p.join(',')).join(' ')}" fill="${c.lite}" opacity=".18"/>`;
+    } else if(n.type==='cap'){
+      const r=HW+4;
+      html+=`<rect x="${n.sx-r}" y="${n.sy-r}" width="${r*2}" height="${r*2}" rx="4" fill="${c.body}" stroke="${stk}" stroke-width="1.5"/>`;
+      html+=`<circle cx="${n.sx}" cy="${n.sy}" r="3" fill="${stk}" opacity=".5"/>`;
+    }
+
+    // Start/end caps for non-cap nodes
+    if(n.type!=='cap'){
+      html+=`<circle cx="${n.sx}" cy="${n.sy}" r="${HW+.5}" fill="${c.body}" stroke="${stk}" stroke-width="1"/>`;
+      html+=`<circle cx="${n.ex}" cy="${n.ey}" r="${HW+.5}" fill="${c.body}" stroke="${stk}" stroke-width="1"/>`;
+    }
   });
-  html+='</g>';
 
-  // Body layer
-  d.segs.forEach((s,i)=>{
-    const hi=hovered===i,fill=hi?c.lite:'url(#bg)',stk=hi?'#8B7355':c.edge,sw=hi?2.5:1;
-    if(s.t==='s'){const dx=s.x2-s.x1,dy=s.y2-s.y1,l=Math.hypot(dx,dy)||1,nx=(-dy/l)*HW,ny=(dx/l)*HW;
-      const mp=`${s.x1+nx},${s.y1+ny} ${s.x2+nx},${s.y2+ny} ${s.x2-nx},${s.y2-ny} ${s.x1-nx},${s.y1-ny}`;
-      const tp=`${s.x1+nx},${s.y1+ny} ${s.x2+nx},${s.y2+ny} ${s.x2+nx*.5},${s.y2+ny*.5} ${s.x1+nx*.5},${s.y1+ny*.5}`;
-      html+=`<polygon points="${mp}" fill="${fill}" stroke="${stk}" stroke-width="${sw}" stroke-linejoin="round"/><polygon points="${tp}" fill="${c.lite}" opacity=".2"/>`}
-    else{const o=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW,1),n=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW,-1);
-      html+=`<polygon points="${[...o,...n.reverse()].map(p=>p.join(',')).join(' ')}" fill="${fill}" stroke="${stk}" stroke-width="${sw}" stroke-linejoin="round"/>`;
-      const ho=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW,1),hi2=eArc(s.cx,s.cy,s.sa,s.ea,s.cw,HW*.3,1);
-      html+=`<polygon points="${[...ho,...hi2.reverse()].map(p=>p.join(',')).join(' ')}" fill="${c.lite}" opacity=".18"/>`}
-  });
-
-  // End caps
-  if(d.segs.length){
-    html+=`<circle cx="${d.sx}" cy="${d.sy}" r="${HW+.5}" fill="${c.body}" stroke="${c.edge}" stroke-width="1"/>`;
-    html+=`<circle cx="${d.ex}" cy="${d.ey}" r="${HW+.5}" fill="${c.body}" stroke="${c.edge}" stroke-width="1"/>`;
-  }
-
-  // Snap zones when dragging
-  if(dragging&&d.segs.length){
-    const isEnd=dropTarget==='end',isStart=dropTarget==='start';
-    const pr=22,po=.5;
-    html+=`<circle cx="${d.ex}" cy="${d.ey}" r="${isEnd?pr*1.8:pr}" fill="none" stroke="${isEnd?'#8B7355':'rgba(139,115,85,.4)'}" stroke-width="${isEnd?3:2}" ${isEnd?'':'stroke-dasharray="8 5"'} opacity="${isEnd?1:po}"/>`;
-    html+=`<circle cx="${d.ex}" cy="${d.ey}" r="8" fill="${isEnd?'#8B7355':'rgba(139,115,85,.5)'}"/>`;
-    if(isEnd)html+=`<circle cx="${d.ex}" cy="${d.ey}" r="${pr*2.5}" fill="rgba(139,115,85,.06)"/>`;
-    html+=`<circle cx="${d.sx}" cy="${d.sy}" r="${isStart?pr*1.8:pr}" fill="none" stroke="${isStart?'#8B7355':'rgba(139,115,85,.4)'}" stroke-width="${isStart?3:2}" ${isStart?'':'stroke-dasharray="8 5"'} opacity="${isStart?1:po}"/>`;
-    html+=`<circle cx="${d.sx}" cy="${d.sy}" r="8" fill="${isStart?'#8B7355':'rgba(139,115,85,.5)'}"/>`;
-    if(isStart)html+=`<circle cx="${d.sx}" cy="${d.sy}" r="${pr*2.5}" fill="rgba(139,115,85,.06)"/>`;
+  // Open ports (drop targets)
+  if(dragging){
+    const isCap=PT.find(p=>p.id===dragging)?.isCap;
+    ports.forEach(p=>{
+      const active=dropPort&&dropPort.id===p.id;
+      const pr=active?28:18;
+      html+=`<circle cx="${p.x}" cy="${p.y}" r="${pr}" fill="${active?'rgba(139,115,85,.1)':'none'}" stroke="${active?'#8B7355':'rgba(139,115,85,.35)'}" stroke-width="${active?3:1.5}" ${active?'':'stroke-dasharray="6 4"'}/>`;
+      if(active) html+=`<circle cx="${p.x}" cy="${p.y}" r="6" fill="#8B7355"/>`;
+    });
   }
 
   svg.innerHTML=html;
 }
 
+// === UI ===
+function flatPieces(){return nodes.map(n=>n.type)}
+
 function updateUI(){
   renderSVG();
-  // Pieces list
-  const sec=document.getElementById('piecesSection');
-  sec.style.display=pieces.length?'block':'none';
-  document.getElementById('pCount').textContent=pieces.length;
-  const list=document.getElementById('piecesList');
-  list.innerHTML=pieces.map((p,i)=>{
-    const t=PIECE_TYPES.find(pt=>pt.id===p);
-    return `<div class="pl-item" onmouseenter="setHovered(${i})" onmouseleave="setHovered(null)">
-      <span><span class="pl-idx">${i+1}</span>${t?t.name:p}</span>
-      <button class="pl-del" onclick="removePiece(${i})">×</button></div>`
+  const fp=flatPieces();
+  document.getElementById('piecesSection').style.display=fp.length?'block':'none';
+  document.getElementById('pCount').textContent=fp.length;
+  document.getElementById('piecesList').innerHTML=nodes.map((n,i)=>{
+    const t=PT.find(p=>p.id===n.type);
+    return`<div class="pl-item"><span><span class="pl-idx">${i+1}</span>${t?t.name:n.type}</span><button class="pl-del" onclick="removeNode(${n.id})">×</button></div>`;
   }).join('');
-
-  // Summary
-  const counts={};pieces.forEach(p=>{counts[p]=(counts[p]||0)+1});
-  const capPrice=pieces.length?70:0;
-  const total=pieces.reduce((s,p)=>{const t=PIECE_TYPES.find(pt=>pt.id===p);return s+(t?t.price:0)},0)+capPrice;
-  let sumHtml='';
-  Object.entries(counts).forEach(([k,v])=>{const t=PIECE_TYPES.find(pt=>pt.id===k);
-    sumHtml+=`<div class="sum-row"><span>${t?t.name:k} ×${v}</span><span>₺${v*(t?t.price:0)}</span></div>`});
-  if(pieces.length)sumHtml+=`<div class="sum-row"><span>Kapak Seti</span><span>₺70</span></div>`;
-  document.getElementById('sumDetails').innerHTML=sumHtml;
+  const counts={};fp.forEach(p=>{counts[p]=(counts[p]||0)+1});
+  const total=fp.reduce((s,p)=>{const t=PT.find(pt=>pt.id===p);return s+(t?t.pr:0)},0);
+  let sh='';Object.entries(counts).forEach(([k,v])=>{const t=PT.find(p=>p.id===k);sh+=`<div class="sum-row"><span>${t?t.name:k} ×${v}</span><span>₺${v*(t?t.pr:0)}</span></div>`});
+  document.getElementById('sumDetails').innerHTML=sh;
   document.getElementById('sumPrice').textContent='₺'+total.toLocaleString('tr-TR');
-  document.getElementById('orderBtn').disabled=!pieces.length;
-
-  // Bar
-  const barParts=Object.entries(counts).map(([k,v])=>{const t=PIECE_TYPES.find(pt=>pt.id===k);return `${t?t.name.split(' ')[0]:'?'} ×${v}`});
-  document.getElementById('barInfo').textContent=barParts.join(' · ')||'Parça sürükleyin';
+  document.getElementById('orderBtn').disabled=!fp.length;
+  document.getElementById('barInfo').textContent=Object.entries(counts).map(([k,v])=>{const t=PT.find(p=>p.id===k);return`${t?t.name.split(' ')[0]:'?'} ×${v}`}).join(' · ')||'Parça sürükleyin';
   document.getElementById('barPrice').textContent='₺'+total.toLocaleString('tr-TR');
-  document.getElementById('badgePieces').textContent=pieces.length+' parça';
-  document.getElementById('badgeColor').textContent=COLORS[color].label;
+  document.getElementById('badgeP').textContent=fp.length+' parça';
+  document.getElementById('badgeC').textContent=COL[color].label;
 }
 
-// === TABS ===
-function setTab(t){
-  tab=t;
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',i===(t==='build'?0:1)));
-  document.getElementById('buildPanel').style.display=t==='build'?'block':'none';
-  document.getElementById('presetsPanel').style.display=t==='presets'?'block':'none';
+function removeNode(id){
+  // Remove this node and all nodes that depend on it
+  const toRemove=new Set([id]);
+  // Find chain: any node whose start matches this node's end or branch
+  let changed=true;
+  while(changed){
+    changed=false;
+    nodes.forEach(n=>{
+      if(toRemove.has(n.id))return;
+      // Check if this node starts where a removed node ends
+      const parent=nodes.find(r=>toRemove.has(r.id)&&(
+        (Math.abs(r.ex-n.sx)<1&&Math.abs(r.ey-n.sy)<1)||
+        r.branchPorts.some(bp=>Math.abs(bp.x-n.sx)<1&&Math.abs(bp.y-n.sy)<1)
+      ));
+      if(parent){toRemove.add(n.id);changed=true}
+    });
+  }
+  // Also unmark branch ports
+  nodes.forEach(n=>{n.branchPorts.forEach(bp=>{
+    const child=nodes.find(c=>toRemove.has(c.id)&&Math.abs(bp.x-c.sx)<1&&Math.abs(bp.y-c.sy)<1);
+    if(child) bp.taken=false;
+  })});
+  nodes=nodes.filter(n=>!toRemove.has(n.id));
+  updateUI();
 }
 
-// === DRAG PIECES ===
+function undo(){if(nodes.length){removeNode(nodes[nodes.length-1].id)}}
+function clearAll(){nodes=[];nodeId=0;dropPort=null;updateUI()}
+function setTab(t){tab=t;document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',i===(t==='build'?0:1)));document.getElementById('buildPanel').style.display=t==='build'?'block':'none';document.getElementById('presetsPanel').style.display=t==='presets'?'block':'none'}
+
+// === PALETTE ===
 const dpEl=document.getElementById('dragPieces');
-PIECE_TYPES.forEach(pt=>{
+PT.forEach(pt=>{
   const el=document.createElement('div');el.className='drag-item';el.draggable=true;
-  el.innerHTML=`<div class="di-icon" style="font-size:24px;color:var(--accent)">${pt.icon}</div><div class="di-info"><div class="di-name">${pt.name}</div><div class="di-size">${pt.size} · ₺${pt.price}</div></div>`;
+  el.innerHTML=`<div class="di-icon" style="color:var(--accent)">${pt.icon}</div><div class="di-info"><div class="di-name">${pt.name}</div><div class="di-size">${pt.size} · ₺${pt.pr}</div></div>`;
   el.addEventListener('dragstart',e=>{
     dragging=pt.id;
-    document.getElementById('ghost').style.display='flex';
-    document.getElementById('ghost').style.background='rgba(44,44,44,.9)';
-    document.getElementById('ghost').querySelector('.g-icon').textContent=pt.icon;
-    document.getElementById('ghost').querySelector('.g-label').textContent=pt.name.split(' ')[0];
+    const g=document.getElementById('ghost');g.style.display='flex';g.style.background='rgba(44,44,44,.9)';
+    g.querySelector('.g-icon').innerHTML=pt.icon;g.querySelector('.g-label').textContent=pt.name.split(' ')[0];
     const img=new Image();img.src='data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-    e.dataTransfer.setDragImage(img,0,0);
-    document.getElementById('canvas').classList.add('dragging-over');
-    renderSVG();
+    e.dataTransfer.setDragImage(img,0,0);renderSVG();
   });
-  el.addEventListener('dragend',()=>{
-    dragging=null;dropTarget=null;
-    document.getElementById('ghost').style.display='none';
-    document.getElementById('canvas').classList.remove('dragging-over');
-    document.getElementById('dropHint').style.display='none';
-    renderSVG();
-  });
+  el.addEventListener('dragend',()=>{dragging=null;dropPort=null;document.getElementById('ghost').style.display='none';document.getElementById('dropHint').style.display='none';renderSVG()});
   dpEl.appendChild(el);
 });
 
 // === PRESETS ===
 const prEl=document.getElementById('presetsList');
 PRESETS.forEach(pr=>{
-  const total=pr.p.reduce((s,k)=>{const t=PIECE_TYPES.find(pt=>pt.id===k);return s+(t?t.price:0)},0)+70;
-  const btn=document.createElement('button');
-  btn.className='preset-btn'+(pr.popular?' pop':'');
-  btn.innerHTML=(pr.popular?'<span class="pop-tag">POPÜLER</span>':'')+
-    `<div class="pr-name">${pr.name}</div><div class="pr-info">${pr.p.length} parça · ₺${total}</div>`;
-  btn.onclick=()=>{pieces=[...pr.p];setTab('build');updateUI()};
+  const total=pr.p.reduce((s,k)=>{const t=PT.find(p=>p.id===k);return s+(t?t.pr:0)},0);
+  const btn=document.createElement('button');btn.className='preset-btn'+(pr.popular?' pop':'');
+  btn.innerHTML=(pr.popular?'<span class="pop-tag">POPÜLER</span>':'')+`<div class="pr-name">${pr.name}</div><div class="pr-info">${pr.p.length} parça · ₺${total}</div>`;
+  btn.onclick=()=>{nodes=[];nodeId=0;let x=0,y=0,dir=0;pr.p.forEach(type=>{const n=addNode(type,x,y,dir);x=n.ex;y=n.ey;dir=n.edir});setTab('build');updateUI()};
   prEl.appendChild(btn);
 });
 
 // === COLORS ===
 const crEl=document.getElementById('colorRow');
-Object.entries(COLORS).forEach(([k,v])=>{
+Object.entries(COL).forEach(([k,v])=>{
   const el=document.createElement('div');el.className='cs'+(k==='black'?' active':'');
-  el.style.background=v.body;el.title=v.label;
-  if(k==='white')el.style.border='2.5px solid #ddd';
+  el.style.background=v.body;el.title=v.label;if(k==='white')el.style.border='2.5px solid #ddd';
   el.onclick=()=>{color=k;document.querySelectorAll('.cs').forEach(s=>s.classList.remove('active'));el.classList.add('active');updateUI()};
   crEl.appendChild(el);
 });
 
-// === GHOST + DROP LOGIC ===
-function screenToSVG(clientX, clientY){
-  const svg=document.getElementById('shelfSvg');
-  const rect=svg.getBoundingClientRect();
-  const vb=svg.viewBox.baseVal;
-  if(!vb||vb.width===0||rect.width===0) return null;
-  const scaleX=vb.width/rect.width, scaleY=vb.height/rect.height;
-  return { x:(clientX-rect.left)*scaleX+vb.x, y:(clientY-rect.top)*scaleY+vb.y };
+// === DROP LOGIC ===
+function screenToSVG(cx,cy){
+  const svg=document.getElementById('svg'),rect=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;
+  if(!vb||vb.width===0||rect.width===0)return null;
+  return{x:(cx-rect.left)*vb.width/rect.width+vb.x,y:(cy-rect.top)*vb.height/rect.height+vb.y};
 }
 
 document.addEventListener('drag',e=>{
-  if(!dragging||e.clientX===0)return;
-  const g=document.getElementById('ghost');
-  g.style.left=(e.clientX-28)+'px';g.style.top=(e.clientY-28)+'px';
-
-  // Determine drop target
-  if(pieces.length){
-    const d=build(pieces);
-    const m=screenToSVG(e.clientX,e.clientY);
-    if(m){
-      const dEnd=Math.hypot(m.x-d.ex,m.y-d.ey), dStart=Math.hypot(m.x-d.sx,m.y-d.sy);
-      // Daha yakın olan uç nokta otomatik seçilir
-      if(dEnd<=dStart){dropTarget='end';g.style.background='rgba(139,115,85,.95)';g.style.transform='scale(1.15)'}
-      else{dropTarget='start';g.style.background='rgba(139,115,85,.95)';g.style.transform='scale(1.15)'}
-    } else {
-      // SVG henüz viewBox yoksa varsayılan olarak sona ekle
-      dropTarget='end';g.style.background='rgba(139,115,85,.95)';g.style.transform='scale(1.15)';
-    }
-  } else {dropTarget='end'}
-
+  if(!dragging||!e.clientX)return;
+  const g=document.getElementById('ghost');g.style.left=(e.clientX-28)+'px';g.style.top=(e.clientY-28)+'px';
+  const ports=getOpenPorts();
+  const m=screenToSVG(e.clientX,e.clientY);
+  dropPort=null;
+  if(m&&ports.length){
+    let best=Infinity,bp=null;
+    ports.forEach(p=>{const d=Math.hypot(m.x-p.x,m.y-p.y);if(d<best){best=d;bp=p}});
+    if(best<120){dropPort=bp;g.style.background='rgba(139,115,85,.95)';g.style.transform='scale(1.15)'}
+    else{g.style.background='rgba(44,44,44,.9)';g.style.transform='scale(1)'}
+  } else if(!nodes.length){dropPort={id:'origin',x:0,y:0,dir:0};g.style.background='rgba(139,115,85,.95)';g.style.transform='scale(1.15)'}
   const hint=document.getElementById('dropHint');
-  if(dropTarget){hint.style.display='block';hint.textContent=dropTarget==='end'?'→ Sona ekle':'← Başa ekle'}
-  else{hint.style.display='none'}
+  if(dropPort){hint.style.display='block';hint.textContent=dropPort.label==='Dal'?'↳ Dala ekle':dropPort.label==='Baş'?'← Başa ekle':'→ Ekle'}
+  else{hint.style.display=nodes.length?'block':'none';if(nodes.length)hint.textContent='Bağlantı noktasına sürükleyin'}
   renderSVG();
 });
 
@@ -418,21 +491,34 @@ canvas.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEff
 canvas.addEventListener('drop',e=>{
   e.preventDefault();
   if(!dragging)return;
-  // Kanvas üzerine bırakıldığında her zaman ekle
-  if(dropTarget==='start') pieces.unshift(dragging);
-  else pieces.push(dragging); // 'end' veya null → sona ekle
-  dragging=null;dropTarget=null;
+  let port=dropPort;
+  if(!port){
+    if(!nodes.length) port={id:'origin',x:0,y:0,dir:0};
+    else{const ports=getOpenPorts();if(ports.length)port=ports[0]}
+  }
+  if(!port){dragging=null;dropPort=null;return}
+
+  // Başa ekleme durumu
+  if(port.id==='start'&&dragging!=='cap'){
+    // Yeni parçayı ters yönde ekle, sonra tüm zinciri kaydır
+    const reverseDir=(port.dir+2)%4; // port.dir zaten ters yön
+    const n=addNode(dragging,port.x,port.y,port.dir);
+    // Aslında bu noktadan port.dir yönüne gidecek, start noktası port'ta
+  } else {
+    // Branch port mu?
+    const bpMatch=nodes.find(nd=>nd.branchPorts.some(bp=>bp.id===port.id));
+    if(bpMatch){
+      const bp=bpMatch.branchPorts.find(bp=>bp.id===port.id);
+      bp.taken=true;
+    }
+    addNode(dragging,port.x,port.y,port.dir);
+  }
+
+  dragging=null;dropPort=null;
   document.getElementById('ghost').style.display='none';
-  document.getElementById('canvas').classList.remove('dragging-over');
   document.getElementById('dropHint').style.display='none';
   updateUI();
 });
-
-// === ACTIONS ===
-function removePiece(i){pieces.splice(i,1);hovered=null;updateUI()}
-function undo(){if(pieces.length){pieces.pop();updateUI()}}
-function clearAll(){pieces=[];hovered=null;updateUI()}
-function setHovered(i){hovered=i;renderSVG()}
 
 updateUI();
 </script>
